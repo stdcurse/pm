@@ -6,6 +6,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/goccy/go-yaml v1.9.4
 	github.com/mholt/archiver/v3 v3.5.1
+	github.com/stevenle/topsort v0.2.0
 	github.com/urfave/cli/v2 v2.3.0
 )
 
@@ -18,11 +19,11 @@ require (
 	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mibk/shellexec v0.1.0 // indirect
 	github.com/nwaples/rardecode v1.1.2 // indirect
 	github.com/pierrec/lz4/v4 v4.1.12 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
-	github.com/stevenle/topsort v0.2.0 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	golang.org/x/sys v0.0.0-20211204120058-94396e421777 // indirect

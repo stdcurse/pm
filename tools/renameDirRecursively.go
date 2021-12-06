@@ -21,8 +21,11 @@
 package tools
 
 import (
+	"io/fs"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 func RenameDirectoryRecursively(from, to string) error {
@@ -42,4 +45,32 @@ func RenameDirectoryRecursively(from, to string) error {
 	}
 
 	return nil
+}
+
+func BetterRenameFilesRecursively(from, to string) error {
+	err := filepath.Walk(from, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if path == from {
+			return nil
+		}
+		toFile := to + "/" + strings.Replace(path, from, "", 1)
+
+		if info.IsDir() {
+			if _, err := os.Stat(toFile); err != nil {
+				os.MkdirAll(toFile, info.Mode())
+			}
+
+			return nil
+		}
+
+		if _, err := os.Stat(toFile); err == nil {
+			os.RemoveAll(toFile)
+		}
+
+		return os.Rename(path, toFile)
+	})
+
+	return err
 }

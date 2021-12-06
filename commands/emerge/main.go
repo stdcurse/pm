@@ -18,10 +18,14 @@
 	3. This notice may not be removed or altered from any source distribution.
 */
 
-package install
+package emerge
 
 import (
 	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/stdcurse/pm/config"
 	"github.com/stdcurse/pm/output"
@@ -51,7 +55,7 @@ func Command(c *cli.Context) error {
 		pkgs = append(pkgs, p)
 	}
 
-	tree := tools.BuildDependenciesTree(pkgs)
+	tree := pmpkg.BuildDependenciesTree(pkgs)
 	if tree == nil {
 		output.ErrorSimple("Cyclic dependence found, can't operate")
 	}
@@ -59,6 +63,38 @@ func Command(c *cli.Context) error {
 	output.Info("The following new packages will be installed:")
 	for _, x := range tree {
 		output.Info("- " + x.Name)
+	}
+
+	for _, x := range tree {
+		fmt.Println()
+		output.Info("Emerging " + x.Name + "...")
+		x.Fetch()
+		x.Emerge()
+
+		var files []string
+		pkgdir := fmt.Sprintf("%s/%s/pkgdir", cfg.Portdir, x.Name)
+
+		output.Check(filepath.Walk(pkgdir, func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if path == pkgdir {
+				return nil
+			}
+			files = append(files, strings.Replace(path, pkgdir, "", 1))
+			return nil
+		}), "Something went wrong with walking through pkgdir", true)
+
+		output.Info("Merging pkgdir with filesystem...")
+		output.Check(tools.BetterRenameFilesRecursively(pkgdir, "/"), "Something went wrong with merging files", true)
+
+		if _, err := os.Stat(pkgdir); err == nil {
+			output.Check(os.RemoveAll(pkgdir), "Something went wrong with deleting directory", true)
+		}
+
+		db.Add(x.Name, x.Version, x.Release, files)
+
+		output.Info("Package " + x.Name + " was successfully emerged!")
 	}
 
 	return nil

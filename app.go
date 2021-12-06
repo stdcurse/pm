@@ -21,7 +21,7 @@
 package main
 
 import (
-	"github.com/stdcurse/pm/commands/install"
+	"github.com/stdcurse/pm/commands/emerge"
 	"github.com/stdcurse/pm/commands/pull"
 	"github.com/stdcurse/pm/output"
 	"github.com/urfave/cli/v2"
@@ -75,10 +75,10 @@ Bug tracker: https://github.com/stdcurse/pm/issues
 				Action:  pull.Command,
 			},
 			{
-				Name:    "install",
-				Aliases: []string{"i"},
-				Usage:   "Install package(s)",
-				Action:  install.Command,
+				Name:    "emerge",
+				Aliases: []string{"e"},
+				Usage:   "Emerge package(s)",
+				Action:  emerge.Command,
 			},
 		},
 	}

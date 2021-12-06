@@ -18,14 +18,46 @@
 	3. This notice may not be removed or altered from any source distribution.
 */
 
-package main
+package pmpkg
 
-import (
-	"os"
-)
+import "github.com/stevenle/topsort"
 
-func main() {
-	app := NewApp()
+func BuildDependenciesTree(pkgs []*Package) []*Package {
+	graph := topsort.NewGraph()
 
-	app.Run(os.Args)
+	graph.AddNode("A")
+
+	var walk func(parent string, pkg *Package)
+	walk = func(parent string, pkg *Package) {
+		graph.AddEdge(parent, pkg.Name)
+
+		for _, x := range pkg.Dependencies {
+			walk(pkg.Name, x)
+		}
+	}
+
+	for _, x := range pkgs {
+		graph.AddEdge("A", x.Name)
+
+		for _, v := range x.Dependencies {
+			walk(x.Name, v)
+		}
+	}
+
+	r, err := graph.TopSort("A")
+
+	if err != nil {
+		return nil
+	}
+
+	var res []*Package
+	for _, x := range r[:len(r)-1] {
+		for _, v := range pkgs {
+			if v.Name == x {
+				res = append(res, v)
+			}
+		}
+	}
+
+	return res
 }

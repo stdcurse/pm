@@ -29,6 +29,7 @@ import (
 type DatabaseEntry struct {
 	Name    string
 	Version string
+	Release uint
 	Files   []string
 }
 
@@ -54,9 +55,22 @@ func (db *Database) update() {
 	output.Check(ioutil.WriteFile(dbPath, c, 0664), "Something went wrong with database. Unfortunately, it's fatal", true)
 }
 
-func (db *Database) Add(name string, version string, files []string) {
+func (db *Database) Add(name string, version string, release uint, files []string) {
+	for k, v := range *db {
+		if v.Name == name {
+			(*db)[k].Version = version
+			(*db)[k].Files = files
+			(*db)[k].Release = release
+
+			db.update()
+
+			return
+		}
+	}
+
 	*db = append(*db, DatabaseEntry{
 		Name:    name,
+		Release: release,
 		Version: version,
 		Files:   files,
 	})

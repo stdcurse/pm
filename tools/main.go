@@ -21,10 +21,13 @@
 package tools
 
 import (
+	"crypto/tls"
 	"github.com/stdcurse/pm/output"
 	"io"
+	"net"
 	"net/http"
 	"os"
+	"time"
 )
 
 func NeedRoot() {
@@ -34,7 +37,26 @@ func NeedRoot() {
 }
 
 func DownloadFile(url string, path string) error {
-	resp, err := http.Get(url)
+	c := &http.Client{
+		Transport: &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+			DialContext: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+				DualStack: true,
+			}).DialContext,
+			ForceAttemptHTTP2:     true,
+			MaxIdleConns:          100,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+
+	resp, err := c.Get(url)
 	if err != nil {
 		return err
 	}
