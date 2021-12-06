@@ -22,14 +22,15 @@ package pull
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
 	"github.com/mholt/archiver/v3"
 	"github.com/stdcurse/pm/config"
 	"github.com/stdcurse/pm/output"
 	"github.com/stdcurse/pm/tools"
 	"github.com/urfave/cli/v2"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 )
 
 func Command(c *cli.Context) error {
@@ -46,7 +47,7 @@ func Command(c *cli.Context) error {
 		output.Check(tools.DownloadFile(v.Url, filename), "Something went wrong with downloading file", true)
 		output.Check(archiver.Unarchive(filename, tmp), "Something went wrong with extracting an archive", true)
 
-		tools.RenameDirectoryRecursively(tmp+"/"+v.Path, cfg.Portdir)
+		output.Check(tools.RenameDirectoryRecursively(tmp+"/"+v.Path, cfg.Portdir), "Something went wrong with renaming process", true)
 	}
 
 	output.Info("Done")

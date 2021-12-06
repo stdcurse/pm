@@ -23,19 +23,20 @@ package pmpkg
 import (
 	"bytes"
 	"fmt"
-	"github.com/goccy/go-yaml"
-	"github.com/stdcurse/pm/config"
-	"github.com/stdcurse/pm/output"
 	"io/ioutil"
 	"os"
 	"text/template"
+
+	"github.com/goccy/go-yaml"
+	"github.com/stdcurse/pm/config"
+	"github.com/stdcurse/pm/output"
 )
 
 type Package struct {
 	Name         string
 	Version      string
 	Description  string
-	Dependencies []Package
+	Dependencies []*Package
 
 	PackageDir string
 

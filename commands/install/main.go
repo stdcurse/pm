@@ -22,6 +22,7 @@ package install
 
 import (
 	"fmt"
+
 	"github.com/stdcurse/pm/config"
 	"github.com/stdcurse/pm/output"
 	"github.com/stdcurse/pm/pmpkg"
@@ -38,6 +39,8 @@ func Command(c *cli.Context) error {
 		output.ErrorSimple("You must specify packages names")
 	}
 
+	var pkgs []*pmpkg.Package
+
 	for _, pkgName := range c.Args().Slice() {
 		p := pmpkg.NewPackage(pkgName, db, cfg)
 
@@ -45,7 +48,17 @@ func Command(c *cli.Context) error {
 			output.ErrorSimple(fmt.Sprintf("Package %s is not found", pkgName))
 		}
 
-		fmt.Println(*p)
+		pkgs = append(pkgs, p)
+	}
+
+	tree := tools.BuildDependenciesTree(pkgs)
+	if tree == nil {
+		output.ErrorSimple("Cyclic dependence found, can't operate")
+	}
+
+	output.Info("The following new packages will be installed:")
+	for _, x := range tree {
+		output.Info("- " + x.Name)
 	}
 
 	return nil

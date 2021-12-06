@@ -32,9 +32,10 @@ func RenameDirectoryRecursively(from, to string) error {
 	}
 
 	for _, x := range d {
-		if _, err := os.Stat(to + "/" + x.Name()); err != nil {
+		if _, err := os.Stat(to + "/" + x.Name()); err == nil {
 			os.RemoveAll(to + "/" + x.Name())
 		}
+
 		if err = os.Rename(from+"/"+x.Name(), to+"/"+x.Name()); err != nil {
 			return err
 		}
